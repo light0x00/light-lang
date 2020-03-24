@@ -1,0 +1,46 @@
+{
+	"name": "light-lang",
+	"version": "0.0.0",
+	"scripts": {
+		"test": "yarn nyc mocha test/**/*.test.ts",
+		"build": "yarn tsc -b tsconfig.json",
+		"build:prod": "yarn tsc -b tsconfig.prod.json"
+	},
+	"dependencies": {
+		"@light0x00/shim": "^0.0.2",
+		"@parser-generator/definition": "^0.1.0-alpha.0",
+		"typescript-collections": "^1.3.3"
+	},
+	"devDependencies": {
+		"@types/mocha": "^7.0.1",
+		"@typescript-eslint/eslint-plugin": "^2.21.0",
+		"@typescript-eslint/parser": "^2.21.0",
+		"eslint": "^6.8.0",
+		"mocha": "^7.0.1",
+		"should": "^13.2.3",
+		"ts-node": "^8.6.2",
+		"tsconfig-paths": "^3.9.0",
+		"typescript": "^3.8.3"
+	},
+	"main": "lib/cjs/index.js",
+	"module": "lib/esm/index.js",
+	"types": "lib/types/index.d.ts",
+	"files": [
+		"lib/browser",
+		"lib/cjs",
+		"lib/esm",
+		"lib/types",
+		"src/",
+		"docs/",
+		"README.*.md"
+	],
+	"license": "MIT",
+	"author": "Chen Yang <light0x00@163.com> (https://github.com/light0x00)",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/light0x00/light-template.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

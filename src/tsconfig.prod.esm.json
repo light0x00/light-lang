@@ -1,0 +1,12 @@
+{
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"module": "ESNext",
+		"rootDir": ".",
+		"outDir": "../lib/esm",
+		"sourceMap": true,
+		"declaration": false,                   /* Generates corresponding '.d.ts' file. */
+		"declarationMap": false,                /* Generates a sourcemap for each corresponding '.d.ts' file. */
+	},
+	"include": ["."],
+}
