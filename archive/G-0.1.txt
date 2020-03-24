@@ -1,0 +1,109 @@
+#TOKEN_PROTOTYPES
+NUMBER
+
+#GRAMMAR
+S -> expr;
+
+primary_expr -> 	
+	NUMBER 
+	<% (e)=>new PrimaryExpr(e) %>  
+	| 
+	parenthesize_expr 
+	<% (e)=>e[0] %> ;
+	
+
+parenthesize_expr -> 
+	'(' expr ')' 
+	<% (e)=>new ParenthesizeExpr(e) %> ;
+
+unary_expr -> 
+	primary_expr 
+	<% (e)=>e[0] %>
+	|
+	'!' unary_expr |
+	'~' unary_expr |
+	'+' unary_expr |
+	'-' unary_expr
+	<% (e)=>new UnaryExpr(e) %> ;
+
+multiplicative_expr -> 
+	unary_expr 
+	<% (e)=>e[0] %>
+	|
+	multiplicative_expr '*' unary_expr |
+	multiplicative_expr '/' unary_expr |
+	multiplicative_expr '%' unary_expr 
+	<% (e)=>new MultiplicativeExpr(e) %>;
+
+additive_expr ->
+	multiplicative_expr 
+	<% (e)=>e[0] %>
+	|
+	additive_expr '+' multiplicative_expr |
+	additive_expr '-' multiplicative_expr
+	<% (e)=>new AdditiveExpr(e) %>;
+
+bitwise_shift_expr ->
+	additive_expr 
+	<% (e)=>e[0] %>
+	|
+	bitwise_shift_expr '>>' additive_expr |
+	bitwise_shift_expr '<<' additive_expr |
+	bitwise_shift_expr '>>>' additive_expr
+	<% (e)=>new BitwiseShiftExpr(e) %> ;
+
+relational_expr ->
+	bitwise_shift_expr 
+	<% (e)=>e[0] %>
+	|
+	relational_expr '<' bitwise_shift_expr |
+	relational_expr '>' bitwise_shift_expr |
+	relational_expr '<=' bitwise_shift_expr |
+	relational_expr '>=' bitwise_shift_expr
+	<% (e)=>new RelationalExpr(e) %> ;
+
+equality_expr ->
+	relational_expr 
+	<% (e)=>e[0] %>
+	|
+	equality_expr '==' relational_expr |
+	equality_expr '!=' relational_expr
+	<% (e)=>new EqualityExpr(e) %> ;
+
+bitwise_and_expr ->
+	equality_expr 
+	<% (e)=>e[0] %>
+	|
+	bitwise_and_expr '&' equality_expr
+	<% (e)=>new BitwiseAndExpr(e) %> ;
+
+bitwise_xor_expr ->
+	bitwise_and_expr 
+	<% (e)=>e[0] %>
+	|
+	bitwise_xor_expr '^' bitwise_and_expr 
+	<% (e)=>new BitwiseXorExpr(e) %> ;
+
+bitwise_or_expr ->
+	bitwise_xor_expr
+	<% (e)=>e[0] %>
+	|
+	bitwise_or_expr '|' bitwise_xor_expr 
+	<% (e)=>new BitwiseOrExpr(e) %> ;
+
+logical_and_expr -> 
+	bitwise_or_expr 
+	<% (e)=>e[0] %>
+	|
+	logical_and_expr '&&' bitwise_or_expr
+	<% (e)=>new LogicalAndExpr(e) %> ;
+
+logical_or_expr ->
+	logical_and_expr 
+	<% (e)=>e[0] %>
+	|
+	logical_or_expr '||' logical_and_expr
+	<% (e)=>new LogicalOrExpr(e) %> ;
+
+expr -> logical_or_expr
+	<% (e)=>new Expr(e) %> ;
