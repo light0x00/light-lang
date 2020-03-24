@@ -17,6 +17,7 @@
 		"@typescript-eslint/parser": "^2.21.0",
 		"eslint": "^6.8.0",
 		"mocha": "^7.0.1",
+		"nyc": "^15.0.0",
 		"should": "^13.2.3",
 		"ts-node": "^8.6.2",
 		"tsconfig-paths": "^3.9.0",
@@ -38,7 +39,7 @@
 	"author": "Chen Yang <light0x00@163.com> (https://github.com/light0x00)",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/light0x00/light-template.git"
+		"url": "https://github.com/light0x00/light-lang.git"
 	},
 	"publishConfig": {
 		"access": "public"
