@@ -50,4 +50,20 @@ describe(`Parser Test`,()=>{
 		`))
 	})
 
+	it(`Object Literal`,()=>{
+		should(parser.parse(new Lexer(`{a:1.23,b:"456"}`)).toString()).eql(minify(`
+		({
+			( (a:1.23),(b:456) )
+		})
+		`))
+	})
+
+	it(`Array Literal`,()=>{
+		should(parser.parse(new Lexer(`[1.23,"456",false]`)).toString()).eql(minify(`
+		([
+			( (1.23,456),false )
+		])
+		`))
+	})
+
 })

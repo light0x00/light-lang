@@ -12,10 +12,26 @@ import {
 	BitwiseOrExpr,
 	LogicalAndExpr,
 	LogicalOrExpr,
-	Expr,
-	ASTVisitor
+	Exprs,
+	ASTVisitor,
+	ObjectLiteral,
+	FieldList,
+	LiteralField,
+	ArrayLiteral,
+	ElementList,
+	ArrayMemberExpr,
+	ObjectMemberExpr,
+	NewExpr,
+	CallExpr,
+	Arguments,
+	ArgumentList,
+	ConditionalExpr,
+	LeftSideExpr,
+	ASTNode,
+	LiteralElement
 } from "./ast"
 import { Token } from "./lexer"
+import { assert } from "@light0x00/shim"
 
 function adaptToNum(obj: any) {
 	if (typeof obj === "number") {
@@ -36,6 +52,8 @@ function adaptToBool(obj: any): boolean {
 		return obj == null ? false : true
 	}
 }
+
+// isArray([])
 
 function numBinaryExpr(left: any, operator: Token, right: any): number | boolean {
 	left = adaptToNum(left)
@@ -80,8 +98,68 @@ function numBinaryExpr(left: any, operator: Token, right: any): number | boolean
 			throw new Error("Unsupported number operator :\"" + operator.lexeme + "\" at " + operator.getLocation())
 	}
 }
-
+// {a:1,b:2,c:3}
+/* 
+field_list ',' literal_field
+field_list ',' literal_field ',' literal_field
+field_list ',' literal_field ',' literal_field ',' literal_field
+literal_field ',' literal_field  ',' literal_field ',' literal_field
+(( literal_field ) ',' literal_field ) ',' literal_field ',' literal_field
+*/
+// ((a:1),(b:2),)
 export class EvaluatorVisitor extends ASTVisitor {
+
+	visitObjectLiteral(node: ObjectLiteral) {
+		if (node.fieldList == undefined) {
+			return {}
+		} else {
+			return this.visit(node.fieldList)
+		}
+	}
+	visitFieldList(node: FieldList) {
+		if (node.children.length == 1) {
+			return this.visit(<ASTNode>node.children[0])
+		} else {
+			return Object.assign(
+				this.visit(<ASTNode>node.children[0]),
+				this.visit(<ASTNode>node.children[0]))
+		}
+	}
+	visitLiteralField(node: LiteralField) {
+		return { [node.identifier.lexeme]: this.visit(node.expr) }
+	}
+	visitArrayLiteral(node: ArrayLiteral) {
+	}
+	visitElementList(node: ElementList) {
+		if (node.children.length == 1) {
+			[this.visit(<ASTNode>node.children[0])]
+		} else {
+			return [
+				...this.visit(<ASTNode>node.children[0]),
+				this.visit(<ASTNode>node.children[2])]
+		}
+	}
+	visitLiteralElement(node: LiteralElement) {
+		return this.visit(<ASTNode>node.children[0])
+	}
+	visitArrayMemberExpr(node: ArrayMemberExpr) {
+		return this.visit(node.arrayNode)[this.visit(node.indexNode)]
+	}
+	visitObjectMemberExpr(node: ObjectMemberExpr) {
+		throw new Error("Method not implemented.")
+	}
+	visitNewExpr(node: NewExpr) {
+		throw new Error("Method not implemented.")
+	}
+	visitCallExpr(node: CallExpr) {
+		throw new Error("Method not implemented.")
+	}
+	visitArguments(node: Arguments) {
+		throw new Error("Method not implemented.")
+	}
+	visitArgumentList(node: ArgumentList) {
+		throw new Error("Method not implemented.")
+	}
 
 	visitPrimaryExpr(node: PrimaryExpr) {
 		return node.primary.lexval
@@ -149,8 +227,17 @@ export class EvaluatorVisitor extends ASTVisitor {
 	visitLogicalOrExpr(node: LogicalOrExpr) {
 		return adaptToBool(this.visit(node.left) ? true : adaptToBool(this.visit(node.right)))
 	}
-	visitExpr(node: Expr) {
-		return this.visit(node.expr)
+	visitConditionalExpr(node: ConditionalExpr) {
+		throw new Error("Method not implemented.")
+	}
+	visitLeftSideExpr(node: LeftSideExpr) {
+		throw new Error("Method not implemented.")
+	}
+	visitExprs(node: Exprs) {
+		let result = this.visit(node.expr)
+		if (node.nextExpr != undefined)
+			result = this.visit(node.nextExpr)
+		return result
 	}
 
 }

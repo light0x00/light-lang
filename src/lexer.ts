@@ -80,12 +80,20 @@ abstract class AbstractLexer<T>{
 	protected abstract createToken(): T
 }
 
-export let NUMBER = new TokenPro("NUMBER")
+export const NUMBER = new TokenPro("NUMBER")
+export const STRING = new TokenPro("STRING")
+export const IDENTIFIER = new TokenPro("IDENTIFIER")
+export const TRUE = new TokenPro("TRUE")
+export const FALSE = new TokenPro("FALSE")
+export const NULL = new TokenPro("NULL")
 
 const P_SPACE = /\s+/y
 const P_FLOAT = /([1-9]\d*\.\d+)|(0\.\d+)/y
 const P_INT = /(0(?![0-9]))|([1-9]\d*(?!\.))/y
 const P_OPERATOR = /((\+\+)|(--)|(>>>)|(>>)|(<<)|(<=)|(>=)|(==)|(!=)|(&&)|(\|\|))/y
+const P_STRING = /"(?<literal>(\\"|\\\\|\\n|\\t|[^"])*)"/y
+//\s!"#$%&'()*+,./:;<=>?@^_`{|}~\-\[\]
+const P_WORD = /[^0-9!\s"#$%&'()*+,./:;<=>?@^_`{|}~\-\[\]][^\s!"#$%&'()*+,./:;<=>?@^_`{|}~\-\[\]]*/y
 const P_SINGLE = /./y
 
 export class Lexer extends AbstractLexer<Token> {
@@ -97,9 +105,19 @@ export class Lexer extends AbstractLexer<Token> {
 	private _line = 0
 	private _col = 0
 
+	private reservedWords = new Map<string, Token>()
+
 	constructor(source: string) {
 		super()
 		this._source = source
+
+		this.reserve(new Token("true", TRUE))
+		this.reserve(new Token("false", FALSE))
+		this.reserve(new Token("null", NULL))
+	}
+
+	private reserve(reserve: Token) {
+		this.reservedWords.set(reserve.lexeme, reserve)
 	}
 
 	private match(regexp: RegExp): RegExpExecArray | null {
@@ -128,13 +146,24 @@ export class Lexer extends AbstractLexer<Token> {
 			//丢弃空格
 		}
 
-		let beginLine = this._line, beginCol = this._col
+		let lineBegin = this._line, colBegin = this._col
 
 		if ((matchResult = this.match(P_FLOAT)) != null) {
 			token = new Token(matchResult[0], NUMBER, parseFloat(matchResult[0]))
 		}
 		else if ((matchResult = this.match(P_INT)) != null) {
 			token = new Token(matchResult[0], NUMBER, parseInt(matchResult[0]))
+		}
+		else if ((matchResult = this.match(P_WORD)) != null) {
+			let lexeme = matchResult[0]
+			if (this.reservedWords.has(matchResult[0])) {
+				token = Object.assign(new Token(""), this.reservedWords.get(lexeme)!)
+			} else {
+				token = new Token(lexeme, IDENTIFIER)
+			}
+		}
+		else if ((matchResult = this.match(P_STRING)) != null) {
+			token = new Token(matchResult[1], STRING)
 		}
 		else if ((matchResult = this.match(P_OPERATOR)) != null) {
 			token = new Token(matchResult[0])
@@ -146,11 +175,10 @@ export class Lexer extends AbstractLexer<Token> {
 			if (!this._hasMore) {
 				token = new Token("", EOF)
 			} else
-				throw new Error("Unexpected input `" + this._source[this._lastIndex] + "`")
+				throw new Error("Unexpected symbol `" + this._source[this._lastIndex] + "` at "+this._line+","+this._col)
 		}
-
-		let endLine = this._line, endCol = this._col
-		token.setLocation(beginLine, beginCol, endLine, endCol)
+		let lineEnd = this._line, colEnd = this._col
+		token.setLocation(lineBegin, colBegin, lineEnd, colEnd)
 		return token
 	}
 

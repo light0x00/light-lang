@@ -61,6 +61,8 @@
 			{
 				"checkLoops": false
 			}
-		]
+		],
+		/* 正则 /[\[]/ 误报   */
+		"no-useless-escape":"off"
 	}
 }

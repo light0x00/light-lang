@@ -32,8 +32,34 @@ export abstract class ASTVisitor {
 				return this.visitLogicalAndExpr(<LogicalAndExpr>node)
 			case LogicalOrExpr:
 				return this.visitLogicalOrExpr(<LogicalOrExpr>node)
-			case Expr:
-				return this.visitExpr(<Expr>node)
+			case ObjectLiteral:
+				return this.visitObjectLiteral(<ObjectLiteral>node)
+			case FieldList:
+				return this.visitFieldList(<FieldList>node)
+			case LiteralField:
+				return this.visitLiteralField(<LiteralField>node)
+			case ArrayLiteral:
+				return this.visitArrayLiteral(<ArrayLiteral>node)
+			case ElementList:
+				return this.visitElementList(<ElementList>node)
+			case ArrayMemberExpr:
+				return this.visitArrayMemberExpr(<ArrayMemberExpr>node)
+			case ObjectMemberExpr:
+				return this.visitObjectMemberExpr(<ObjectMemberExpr>node)
+			case NewExpr:
+				return this.visitNewExpr(<NewExpr>node)
+			case CallExpr:
+				return this.visitCallExpr(<CallExpr>node)
+			case Arguments:
+				return this.visitArguments(<Arguments>node)
+			case ArgumentList:
+				return this.visitArgumentList(<ArgumentList>node)
+			case ConditionalExpr:
+				return this.visitConditionalExpr(<ConditionalExpr>node)
+			case LeftSideExpr:
+				return this.visitLeftSideExpr(<LeftSideExpr>node)
+			case Exprs:
+				return this.visitExprs(<Exprs>node)
 			default:
 				throw new Error("Unsupported ASTNode \"" + type.name + "\"")
 		}
@@ -64,8 +90,36 @@ export abstract class ASTVisitor {
 	abstract visitLogicalAndExpr(node: LogicalAndExpr): any
 
 	abstract visitLogicalOrExpr(node: LogicalOrExpr): any
+	//
+	abstract visitObjectLiteral(node: ObjectLiteral): any
 
-	abstract visitExpr(node: Expr): any
+	abstract visitFieldList(node: FieldList): any
+
+	abstract visitLiteralField(node: LiteralField): any
+
+	abstract visitArrayLiteral(node: ArrayLiteral): any
+
+	abstract visitElementList(node: ElementList): any
+
+	abstract visitLiteralElement(node: LiteralElement): any
+
+	abstract visitArrayMemberExpr(node: ArrayMemberExpr): any
+
+	abstract visitObjectMemberExpr(node: ObjectMemberExpr): any
+
+	abstract visitNewExpr(node: NewExpr): any
+
+	abstract visitCallExpr(node: CallExpr): any
+
+	abstract visitArguments(node: Arguments): any
+
+	abstract visitArgumentList(node: ArgumentList): any
+
+	abstract visitConditionalExpr(node: ConditionalExpr): any
+
+	abstract visitLeftSideExpr(node: LeftSideExpr): any
+
+	abstract visitExprs(node: Exprs): any
 }
 
 export abstract class ASTNode {
@@ -81,7 +135,7 @@ export abstract class ASTNode {
 		return this._children.length == 1 ? this._children[0].toString() : "(" + this._children.map(i => i.toString()).join("") + ")"
 	}
 
-	abstract accept(visitor: ASTVisitor): void
+	// abstract accept(visitor: ASTVisitor): void
 }
 
 export class PrimaryExpr extends ASTNode {
@@ -89,7 +143,7 @@ export class PrimaryExpr extends ASTNode {
 		visitor.visitPrimaryExpr(this)
 	}
 
-	get primary(): Token  {
+	get primary(): Token {
 		return this._children[0] as Token
 	}
 }
@@ -99,7 +153,7 @@ export class ParenthesizeExpr extends ASTNode {
 		visitor.visitParenthesizeExpr(this)
 	}
 	get expr() {
-		return this.children[1] as Expr
+		return this.children[1] as Exprs
 	}
 }
 
@@ -264,13 +318,83 @@ export class LogicalOrExpr extends ASTNode {
 		return this._children[2] as LogicalAndExpr
 	}
 }
-
-export class Expr extends ASTNode {
-	accept(visitor: ASTVisitor): void {
-		visitor.visitExpr(this)
+//
+export class ObjectLiteral extends ASTNode {
+	get fieldList(): FieldList | undefined {
+		return this._children.length == 2 ? undefined : this._children[1] as FieldList
 	}
+}
 
-	get expr(): ASTNode {
+export class FieldList extends ASTNode {
+
+}
+
+export class LiteralField extends ASTNode {
+	get identifier() {
+		return this._children[0] as Token
+	}
+	get expr() {
+		return this._children[2] as ASTNode
+	}
+}
+
+export class ArrayLiteral extends ASTNode {
+
+}
+
+export class ElementList extends ASTNode {
+
+}
+
+export class LiteralElement extends ASTNode {
+
+}
+
+export class ArrayMemberExpr extends ASTNode {
+	get indexNode(){
+		return this._children[2] as ASTNode
+	}
+	get arrayNode(){
 		return this._children[0] as ASTNode
+	}
+}
+
+export class ObjectMemberExpr extends ASTNode {
+
+}
+
+export class NewExpr extends ASTNode {
+
+}
+
+export class CallExpr extends ASTNode {
+
+}
+
+export class Arguments extends ASTNode {
+
+}
+
+export class ArgumentList extends ASTNode {
+
+}
+
+export class ConditionalExpr extends ASTNode {
+
+}
+
+export class LeftSideExpr extends ASTNode {
+
+}
+
+export class Exprs extends ASTNode {
+	accept(visitor: ASTVisitor): void {
+		visitor.visitExprs(this)
+	}
+	get expr() {
+		return this.children[0] as Exprs
+	}
+	get nextExpr() {
+		return this._children[2] as ASTNode | undefined
 	}
 }

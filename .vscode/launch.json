@@ -21,5 +21,23 @@
 			"console": "integratedTerminal",
 			"protocol": "inspector",
 		},
+		/* 通过预编译+源码映射的方式启动Mocha */
+		{
+			"type": "node",
+			"name": "DEBUG MOCHA(JS)",
+			"request": "launch",
+			"sourceMaps": true,
+			"program": "${file}",
+			"runtimeExecutable": "${workspaceFolder}/node_modules/.bin/mocha",
+			"outFiles": [
+				"${workspaceFolder}/dist/**/*.js"
+			],
+			"runtimeArgs": [
+				"-r",
+				"module-alias/register"
+			],
+			"console": "integratedTerminal",
+			"protocol": "inspector",
+		},
 	]
 }
